@@ -14,6 +14,9 @@ import scala.util.parsing.input.CharSequenceReader
 case class Record(tag: String, rType: String, name: String, desc: String)
 
 
+/**
+ * JsDoc Parser
+ */
 class JSDocParser extends RegexParsers with PackratParsers {
   type RTag = String
   type RType = String
@@ -34,8 +37,7 @@ class JSDocParser extends RegexParsers with PackratParsers {
   lazy val rType: PackratParser[RType] =
     "{" ~> rep1(word | nestedParentheses) <~ "}" ^^ (w => w.mkString(""))
 
-  lazy val description: PackratParser[RDesc] =
-    """[^@]+""".r ^^ (w => w.toString.trim)
+  lazy val description: PackratParser[RDesc] = """[^@]+""".r ^^ (w => w.toString.trim)
 
   lazy val record: PackratParser[Record] = {
     tag ~ opt(rType ~ opt(name)) ~ opt(description) ^^ {
@@ -44,24 +46,28 @@ class JSDocParser extends RegexParsers with PackratParsers {
     }
   }
 
-  lazy val desc: PackratParser[Record] =
-    description ^^ (desc => Record("", "", "", desc))
+  lazy val desc: PackratParser[Record] = description ^^ (desc => Record("", "", "", desc))
 
-  lazy val block: PackratParser[List[Record]] =
-    rep(record | desc)
+  lazy val block: PackratParser[List[Record]] = rep(record | desc)
 
-  def parseAll[T](p: Parser[T], input: String) = {
+  def parseAll[T](p: Parser[T], input: String): ParseResult[List[Record]] = {
     phrase(p)(new PackratReader[Char](new CharSequenceReader(input)))
   }
 
 }
 
 
+/**
+ * JSDoc Parser object
+ */
 object JSDocParser {
   val COMMENT_PATTERN = """/\*(?:(?!\*\/).|[\n\r])*\*\/""".r
 
   case class Config(in: List[String] = List(), out: String = "result.json")
 
+  /**
+   * Mapper for reading/saving json
+   */
   object JSONMapper extends ObjectMapper with ScalaObjectMapper {
     this.registerModule(DefaultScalaModule)
   }
@@ -87,6 +93,10 @@ object JSDocParser {
       .text("prints this usage text")
   }
 
+  /**
+   * @param path Path to js file
+   * @return List of JSDocs
+   */
   private def readJSDocs(path: String): List[String] = {
     val source = Source.fromFile(path, "UTF-8")
     val text = try source.mkString finally source.close()
@@ -100,12 +110,19 @@ object JSDocParser {
         .trim).toList
   }
 
+  /**
+   * @param records Records to save
+   * @param path Path to result file
+   */
   private def saveJson(records: List[List[Record]], path: String) = {
     val out = new PrintWriter(path)
-    out.println(JSONMapper.writeValueAsString(records))
+    out.write(JSONMapper.writeValueAsString(records))
     out.close()
   }
 
+  /**
+   * @param args Program arguments
+   */
   def main(args: Array[String]): Unit = {
     cmdParser.parse(args, Config()) match {
       case Some(config: Config) =>
