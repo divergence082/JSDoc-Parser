@@ -12,9 +12,18 @@ licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-lic
 
 description := """JavaScript Documentation Parser"""
 
+val nexusUrl = "https://oss.sonatype.org"
+
 resolvers ++= Seq(
-  "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/"
+  "Sonatype OSS" at nexusUrl + "/content/repositories/releases/"
 )
+
+publishTo := {
+  if (isSnapshot.value)
+    Some("snapshots" at nexusUrl + "/content/repositories/snapshots/")
+  else
+    Some("releases"  at nexusUrl + "/content/repositories/releases/")
+}
 
 publishMavenStyle := true
 
