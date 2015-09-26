@@ -2,7 +2,7 @@ name := "JSDoc-Parser"
 
 version := "0.0.1-RELEASE"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.10.4"
 
 organization := "com.github.div082"
 
@@ -23,9 +23,4 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.3.0"
 )
 
-artifact in (Compile, assembly) := {
-  val art = (artifact in (Compile, assembly)).value
-  art.copy(classifier = Some("assembly"))
-}
-
-addArtifact(artifact in (Compile, assembly), assembly)
+mainClass in (Compile, packageBin) := Some("com.github.div082.jsdoc.JSDocParser")

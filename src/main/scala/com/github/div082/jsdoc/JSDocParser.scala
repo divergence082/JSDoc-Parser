@@ -50,7 +50,7 @@ class JSDocParser extends RegexParsers with PackratParsers {
 
   lazy val block: PackratParser[List[Record]] = rep(record | desc)
 
-  def parseAll[T](p: Parser[T], input: String): ParseResult[List[Record]] = {
+  def parseAll[T](p: Parser[T], input: String): ParseResult[T] = {
     phrase(p)(new PackratReader[Char](new CharSequenceReader(input)))
   }
 
