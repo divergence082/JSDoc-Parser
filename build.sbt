@@ -1,3 +1,5 @@
+import AssemblyKeys._
+
 name := "JSDoc-Parser"
 
 version := "0.0.1-RELEASE"
@@ -33,3 +35,12 @@ libraryDependencies ++= Seq(
 )
 
 mainClass in (Compile, packageBin) := Some("com.github.div082.jsdoc.JSDocParser")
+
+assemblySettings
+
+artifact in (Compile, assembly) := {
+  val art = (artifact in (Compile, assembly)).value
+  art.copy(classifier = Some("assembly"))
+}
+
+addArtifact(artifact in (Compile, assembly), assembly)
